@@ -34,10 +34,6 @@ function main() {
 
 function readJSON(type) {   
     if(type == "name") {
-        //fetch("./Data/names.json")        
-        //.then(response => response.json())
-        //.then(data => window.sessionStorage.setItem("data", JSON.stringify(data)))
-        //.catch(error => console.log(error))
         var num = Math.floor(Math.random() * 89372)
         var data = getNames();
         var gender = data.names[num].gender
@@ -1104,9 +1100,10 @@ function lockArr() {
     return arr 
 }
 
-function renderUnlock(el) {
+function renderUnlock(el, mod) {
     var unlock = document.createElement("button")
     unlock.innerHTML = "Unlock"
+    unlock.setAttribute("cost", price(mod))
     unlock.style.marginTop = "15%"
     unlock.addEventListener("click", (e) => ulock(e))
     el.appendChild(unlock)
@@ -1115,9 +1112,23 @@ function renderUnlock(el) {
 }
 
 function ulock(e) {
+    var price = e.target.getAttribute("cost")
+    var coins = document.getElementById("coins")
+    var money = coins.getAttribute("data")
+    money = Number.parseInt(money)
+    if(price > money) {
+        return
+    } else {
+        money = money - price
+    }
+    console.log(coins, money, price)
+    coins.innerHTML = `Coins: ${money}`
+    coins.setAttribute("data", money)
     var parel = e.target.parentElement
     var el = e.target
+    var el2 = e.target.parentElement.children[1]
     el.remove()
+    el2.remove()
     parel.classList.remove("locked")
     parel.style.textAlign = ""
 }
@@ -1206,9 +1217,31 @@ function locker(arr) {
         var el = document.getElementById(i + 1)
         if(arr[div][mod] == "Locked") {
             el.classList.add("locked")
-            renderUnlock(el)
+            var pr = document.createElement("p") 
+            pr.innerHTML = `${price(mod)} Coins`
+            renderUnlock(el, mod)
+            el.appendChild(pr)
         }
     }
+}
+
+function price(mod) {
+    var eq
+    if(mod == 2) {
+        return 30
+    }
+    if(mod < 4 || mod == 4) {
+        eq = Math.round(100 * ((2 * (mod - 2)) / (Math.PI)))
+    } else if(mod > 4 && mod <= 7) {
+        eq = Math.round(100 * (2.5 * ((mod - 2)) * (Math.PI / 2)))
+    } else if(mod > 7 && mod <= 15) {
+        eq = Math.round(100 * ((3.5 * (mod - 2)) * (Math.PI * 2)))
+    } else if(mod > 15 && mod <= 35) {
+        eq = Math.round(100 * ((5 * (mod - 2)) * (Math.PI * 2) + (Math.PI * 4)))
+    } else {
+        eq = Math.round(100 * ((10 * (mod - 2)) * (Math.PI * 5) + (Math.PI * 10)))
+    }
+    return eq
 }
 
 function loadCustomers(cust) {
@@ -1726,14 +1759,14 @@ function loadCrops(crops) {
                 plant.id = `${i + 1}Tomato9`   
                 el.appendChild(plant)
             break;
-            case "WheatT1":
+            case "WheatT10":
                 var plant = document.createElement("img")
                 plant.classList.add("cropImage")
                 plant.addEventListener("dragstart", (e) => drag(e))
                 plant.draggable = "true"
                 plant.addEventListener("mouseenter", (e) => collect(e))
-                plant.src = "Media/Crops/T1/Wheat.png"
-                plant.id = `${i + 1}Wheat1`   
+                plant.src = document.getElementById("Wheat10Img").src
+                plant.id = `${i + 1}Wheat10`   
                 el.appendChild(plant)
             break;
             case "WheatT2":
@@ -1816,23 +1849,24 @@ function loadCrops(crops) {
                 plant.id = `${i + 1}Wheat9` 
                 el.appendChild(plant)
             break;
-            case "WheatT10":
+            case "WheatT1":
                 var plant = document.createElement("img")
                 plant.classList.add("cropImage")
                 plant.addEventListener("dragstart", (e) => drag(e))
                 plant.draggable = "true"
                 plant.addEventListener("mouseenter", (e) => collect(e))
-                plant.src = "Media/Crops/T10/Wheat.png"    
-                plant.id = `${i + 1}Wheat10`
+                plant.src = "Media/Crops/T1/Wheat.png"    
+                plant.id = `${i + 1}Wheat1`
                 el.appendChild(plant)
             break;
-            case "EggplantT1":
+            case "EggplantT10":
                 var plant = document.createElement("img")
                 plant.classList.add("cropImage")
                 plant.addEventListener("dragstart", (e) => drag(e))
                 plant.draggable = "true"
                 plant.addEventListener("mouseenter", (e) => collect(e))
-                plant.src = "Media/Crops/T1/Eggplant.png"    
+                plant.src = "Media/Crops/T10/Eggplant.png"    
+                plant.id = `${i + 1}Eggplant10`
                 el.appendChild(plant)
             break;
             case "EggplantT2":
@@ -1907,13 +1941,13 @@ function loadCrops(crops) {
                 plant.src = "Media/Crops/T9/Eggplant.png"    
                 el.appendChild(plant)
             break;
-            case "EggplantT10":
+            case "EggplantT1":
                 var plant = document.createElement("img")
                 plant.classList.add("cropImage")
                 plant.addEventListener("dragstart", (e) => drag(e))
                 plant.draggable = "true"
                 plant.addEventListener("mouseenter", (e) => collect(e))
-                plant.src = "Media/Crops/T10/Eggplant.png"    
+                plant.src = "Media/Crops/T1/Eggplant.png"    
                 el.appendChild(plant)
             break;
             case "GrapeT1":
@@ -4904,52 +4938,45 @@ function renderAnimals() {
     console.log("animal menu")
 }
 
-function renderVisitors() {
+function search() {
     var logs = JSON.parse(window.localStorage.getItem("logs"))
-    var body = document.createElement("section")
-    body.id = "visitorBody"
-    body.style.backgroundColor = "gray"
-    body.style.width = "80%"
-    body.style.height = "90%"
-    body.style.position = "fixed"
-    body.style.marginTop = "2.5%"
-    body.style.marginLeft = "15%"
-    var table = document.createElement("table")
-    table.style.width = "100%"
-    var tr = document.createElement("tr")
-    var th1 = document.createElement("th")
-    th1.innerHTML = "Name"
-    th1.style.width = "20%"
-    var th2 = document.createElement("th")
-    th2.innerHTML = "Gender"
-    th2.style.width = "20%"
-    var th3 = document.createElement("th")
-    th3.innerHTML = "Money Given"
-    th3.style.width = "20%"
-    var th4 = document.createElement("th")
-    th4.innerHTML = "Xp Given"
-    th4.style.width = "20%"
-    var th5 = document.createElement("th")
-    th5.innerHTML = "Last Seen"
-    th5.style.width = "20%"
-    tr.appendChild(th1)
-    tr.appendChild(th2)
-    tr.appendChild(th3)
-    tr.appendChild(th4)
-    tr.appendChild(th5)
-    table.appendChild(tr)
+    var bar = document.getElementById("searchBar")
+    var arr = []
     for(var i = 0; i < logs.length; i++) {
-        var name = logs[i].name
-        var gender = logs[i].gender
-        var money = logs[i].money
-        var xp = logs[i].xp
-        var time = logs[i].time
+        var names = logs[i].name
+        var text = bar.value
+        names = names.toLowerCase()
+        text = text.toLowerCase()
+        if(names.includes(text)) {
+            arr.push(logs[i])
+        }
+    }
+    //clear the old visitor screen
+    var table = document.getElementById("visitorBody").children[5]
+    var chck = 0
+    while(chck == 0) {
+        if(table.children[1] != null || table.children[1] != undefined) {
+            table.children[1].remove()
+        } else {
+            chck = 1
+        }
+    }
+    var param = document.getElementById("visitorBody").children[2].value
+    var order = document.getElementById("visitorBody").children[3].value
+    var narr = sort(arr, param, order)
+    for(var i = 0; i < arr.length; i++) {
+        var name = narr[i].name
+        var gender = narr[i].gender
+        var money = narr[i].money
+        var xp = narr[i].xp
+        var time = narr[i].time
+        var visit = narr[i].visited
         var tr = document.createElement("tr")
         var td1 = document.createElement("td")
         td1.style.width = "20%"
         td1.innerHTML = name
         var td2 = document.createElement("td")
-        td2.style.width = "20%"
+        td2.style.width = "10%"
         td2.innerHTML = gender
         var td3 = document.createElement("td")
         td3.style.width = "20%"
@@ -4960,11 +4987,295 @@ function renderVisitors() {
         var td5 = document.createElement("td")
         td5.style.width = "20%"
         td5.innerHTML = time
+        var td6 = document.createElement("td")
+        td6.style.width = "10%"
+        td6.innerHTML = visit
         tr.appendChild(td1)
         tr.appendChild(td2)
         tr.appendChild(td3)
         tr.appendChild(td4)
         tr.appendChild(td5)
+        tr.appendChild(td6)
+        table.appendChild(tr)
+    }
+}
+
+function sort(arr, param, order) {
+    if(param == "name") {
+        if(order == "ace") {
+            var narr = arr.sort(function (a, b) {
+                if (a.name < b.name) {
+                  return -1;
+                }
+                if (a.name > b.name) {
+                  return 1;
+                }
+                return 0;
+            });
+            return narr
+        } else if(order == "dec") {
+            var narr = arr.sort(function (a, b) {
+                if (a.name < b.name) {
+                  return 1;
+                }
+                if (a.name > b.name) {
+                  return -1;
+                }
+                return 0;
+            });
+            return narr
+        } else {
+            return arr
+        }
+    } else if(param == "gender") {
+        if(order == "ace") {
+            var narr = []
+            for(var i = 0; i < arr.length; i++) {
+                if(arr[i].gender == "male") {
+                    narr.unshift(arr[i])
+                } else if(arr[i].gender == "female") {
+                    narr.push(arr[i])
+                }
+            }
+            return narr
+        } else if(order == "dec") {
+            var narr = []
+            for(var i = 0; i < arr.length; i++) {
+                if(arr[i].gender == "male") {
+                    narr.push(arr[i])
+                } else if(arr[i].gender == "female") {
+                    narr.unshift(arr[i])
+                }
+            }
+            return narr
+        } else {
+            return arr
+        }
+    } else if(param == "money") {
+        if(order == "ace") {
+            var narr = arr.sort(function (a, b) {
+                if (a.money < b.money) {
+                  return 1;
+                }
+                if (a.money > b.money) {
+                  return -1;
+                }
+                return 0;
+            });
+            return narr
+        } else if(order == "dec") {
+            var narr = arr.sort(function (a, b) {
+                if (a.money < b.money) {
+                  return -1;
+                }
+                if (a.money > b.money) {
+                  return 1;
+                }
+                return 0;
+            });
+            return narr
+        } else {
+            return arr
+        }
+    } else if(param == "xp") {
+        if(order == "ace") {
+            var narr = arr.sort(function (a, b) {
+                if (a.xp < b.xp) {
+                  return 1;
+                }
+                if (a.xp > b.xp) {
+                  return -1;
+                }
+                return 0;
+            });
+            return narr
+        } else if(order == "dec") {
+            var narr = arr.sort(function (a, b) {
+                if (a.xp < b.xp) {
+                  return -1;
+                }
+                if (a.xp > b.xp) {
+                  return 1;
+                }
+                return 0;
+            });
+            return narr
+        } else {
+            return arr
+        }
+    } else if(param == "seen") {
+        if(order == "ace") {
+            var narr = arr.sort((a, b) => new Date(b.time) - new Date(a.time))
+            return narr
+        } else if(order == "dec") {
+            var narr = arr.sort((a, b) => new Date(a.time) - new Date(b.time))
+            return narr
+        } else {
+            return arr
+        }
+    } else if(param == "visit") {
+        if(order == "ace") {
+            var narr = arr.sort(function (a, b) {
+                if (a.visited < b.visited) {
+                  return 1;
+                }
+                if (a.visited > b.visited) {
+                  return -1;
+                }
+                return 0;
+            });
+            return narr
+        } else if(order == "dec") {
+            var narr = arr.sort(function (a, b) {
+                if (a.visited < b.visited) {
+                  return -1;
+                }
+                if (a.visited > b.visited) {
+                  return 1;
+                }
+                return 0;
+            });
+            return narr
+        } else {
+            return arr
+        }
+    } else {
+        return arr
+    }
+}   
+
+function renderVisitors() {
+    var logs = JSON.parse(window.localStorage.getItem("logs"))
+    var body = document.createElement("section")
+    body.id = "visitorBody"
+    body.style.backgroundColor = "gray"
+    body.style.width = "80%"
+    body.style.height = "90%"
+    body.style.position = "fixed"
+    body.style.marginTop = "2.5%"
+    body.style.marginLeft = "15%"
+    body.style.overflowY = "scroll"
+    var search = document.createElement("input")
+    search.style.width = "50%"
+    search.style.marginTop = "1%"
+    search.style.marginLeft = "1%"
+    search.id = "searchBar"
+    var se = document.createElement("button")
+    se.innerHTML = "search"
+    se.setAttribute("onclick", "search()")
+    body.appendChild(search)
+    body.appendChild(se)
+    var close = document.createElement("img")
+    close.setAttribute("onclick", "delProducts(); renderFoods()")
+    close.src = "Media/Icons/close.png"
+    close.style.width = "5%"
+    close.style.float = "right"
+    close.style.cursor = "pointer"
+    var order = document.createElement("select")
+    var o1 = document.createElement("option")
+    o1.value = "null"
+    o1.innerHTML = "Pick One"
+    var o2 = document.createElement("option")
+    o2.value = "ace"
+    o2.innerHTML = "Acsending"
+    var o3 = document.createElement("option")
+    o3.value = "dec"
+    o3.innerHTML = "Descending"
+    order.appendChild(o1)
+    order.appendChild(o2)
+    order.appendChild(o3)
+    var sort = document.createElement("select") 
+    var opt1 = document.createElement("option")
+    opt1.value = "pick"
+    opt1.innerHTML = "Pick one"
+    var opt2 = document.createElement("option")
+    opt2.value = "name"
+    opt2.innerHTML = "Name"
+    var opt3 = document.createElement("option")
+    opt3.value = "gender"
+    opt3.innerHTML = "Gender"
+    var opt4 = document.createElement("option")
+    opt4.value = "money"
+    opt4.innerHTML = "Money Given"
+    var opt5 = document.createElement("option")
+    opt5.value = "xp"
+    opt5.innerHTML = "Xp Given"
+    var opt6 = document.createElement("option")
+    opt6.value = "seen"
+    opt6.innerHTML = "Last seen"
+    var opt7 = document.createElement("option")
+    opt7.value = "visit"
+    opt7.innerHTML = "Times Visited"
+    sort.appendChild(opt1)
+    sort.appendChild(opt2)
+    sort.appendChild(opt3)
+    sort.appendChild(opt4)
+    sort.appendChild(opt5)
+    sort.appendChild(opt6)
+    sort.appendChild(opt7)
+    body.appendChild(sort)
+    body.appendChild(order)
+    body.appendChild(close)
+    var table = document.createElement("table")
+    table.style.width = "100%"
+    var tr = document.createElement("tr")
+    var th1 = document.createElement("th")
+    th1.innerHTML = "Name"
+    th1.style.width = "20%"
+    var th2 = document.createElement("th")
+    th2.innerHTML = "Gender"
+    th2.style.width = "10%"
+    var th3 = document.createElement("th")
+    th3.innerHTML = "Money Given"
+    th3.style.width = "20%"
+    var th4 = document.createElement("th")
+    th4.innerHTML = "Xp Given"
+    th4.style.width = "20%"
+    var th5 = document.createElement("th")
+    th5.innerHTML = "Last Seen"
+    th5.style.width = "20%"
+    var th6 = document.createElement("th")
+    th6.innerHTML = "Times Visited"
+    th6.style.width = "20%"
+    tr.appendChild(th1)
+    tr.appendChild(th2)
+    tr.appendChild(th3)
+    tr.appendChild(th4)
+    tr.appendChild(th5)
+    tr.appendChild(th6)
+    table.appendChild(tr)
+    for(var i = 0; i < logs.length; i++) {
+        var name = logs[i].name
+        var gender = logs[i].gender
+        var money = logs[i].money
+        var xp = logs[i].xp
+        var time = logs[i].time
+        var visit = logs[i].visited
+        var tr = document.createElement("tr")
+        var td1 = document.createElement("td")
+        td1.style.width = "20%"
+        td1.innerHTML = name
+        var td2 = document.createElement("td")
+        td2.style.width = "10%"
+        td2.innerHTML = gender
+        var td3 = document.createElement("td")
+        td3.style.width = "20%"
+        td3.innerHTML = money
+        var td4 = document.createElement("td")
+        td4.style.width = "20%"
+        td4.innerHTML = xp
+        var td5 = document.createElement("td")
+        td5.style.width = "20%"
+        td5.innerHTML = time
+        var td6 = document.createElement("td")
+        td6.style.width = "10%"
+        td6.innerHTML = visit
+        tr.appendChild(td1)
+        tr.appendChild(td2)
+        tr.appendChild(td3)
+        tr.appendChild(td4)
+        tr.appendChild(td5)
+        tr.appendChild(td6)
         table.appendChild(tr)
     }
     body.appendChild(table)
@@ -4972,6 +5283,7 @@ function renderVisitors() {
 }
 
 function delProducts() {
+    console.log("test")
     var parent = document.getElementById("products")
     parent = parent.children[0]
     console.log(parent.children.length)
@@ -4987,6 +5299,13 @@ function delProducts() {
 function spawnCrop(food) {
     switch (food) {
         case "tomato":
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 6) {
+                console.log("Insufficent funds")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = document.getElementById("Tomato1Img").src
             plant.classList.add("cropImage")
@@ -4999,8 +5318,8 @@ function spawnCrop(food) {
             while(check == 1) {
                 iter += 1
                 if(iter > 1000) {
-                    console.log("full")
                     check = 0
+                    coins = coins + 6
                 }                
                 var num = Math.floor((Math. random() * 330) + 1);
                 var el = document.getElementById(num)
@@ -5010,8 +5329,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 6}`
+            money.setAttribute("data", coins - 6)
         break;
         case "wheat":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 12) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 2) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Wheat.png"
             plant.classList.add("cropImage")
@@ -5033,8 +5366,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 12}`
+            money.setAttribute("data", coins - 12)
         break;
         case "eggplant":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 18) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 3) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Eggplant.png"
             plant.classList.add("cropImage")
@@ -5046,7 +5393,6 @@ function spawnCrop(food) {
             while(check == 1) {
                 iter += 1
                 if(iter > 1000) {
-                    console.log("full")
                     check = 0
                 }                
                 var num = Math.floor((Math. random() * 330) + 1);
@@ -5056,8 +5402,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 18}`
+            money.setAttribute("data", coins - 18)
         break;
         case "grape":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 30) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 4) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Grape.png"
             plant.classList.add("cropImage")
@@ -5079,8 +5439,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 30}`
+            money.setAttribute("data", coins - 30)
         break;
         case "carrot":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 42) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 5) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Carrot.png"
             plant.classList.add("cropImage")
@@ -5102,8 +5476,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 42}`
+            money.setAttribute("data", coins - 42)
         break;
         case "pumpkin":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 60) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 6) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Pumpkin.png"
             plant.classList.add("cropImage")
@@ -5125,8 +5513,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 60}`
+            money.setAttribute("data", coins - 60)
         break;
         case "pepper":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 90) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 7) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Pepper.png"
             plant.classList.add("cropImage")
@@ -5148,8 +5550,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 90}`
+            money.setAttribute("data", coins - 90)
         break;
         case "cucumber":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 120) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 8) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Cucumber.png"
             plant.classList.add("cropImage")
@@ -5171,8 +5587,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 120}`
+            money.setAttribute("data", coins - 120)
         break;
         case "blueberry" :
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 150) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 9) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Blueberry.png"
             plant.classList.add("cropImage")
@@ -5194,8 +5624,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 150}`
+            money.setAttribute("data", coins - 150)
         break;
         case "cabbage":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 180) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 10) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Cabbage.png"
             plant.classList.add("cropImage")
@@ -5217,8 +5661,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 180}`
+            money.setAttribute("data", coins - 180)
         break;
         case "corn":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 210) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 11) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Corn.png"
             plant.classList.add("cropImage")
@@ -5240,8 +5698,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 210}`
+            money.setAttribute("data", coins - 210)
         break;
         case "potatoes":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 240) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 12) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Potato.png"
             plant.classList.add("cropImage")
@@ -5263,8 +5735,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 240}`
+            money.setAttribute("data", coins - 240)
         break;
         case "strawberry":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 270) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 13) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Strawberry.png"
             plant.classList.add("cropImage")
@@ -5286,8 +5772,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 270}`
+            money.setAttribute("data", coins - 270)
         break; 
         case "watermelon":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 330) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 14) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Watermelon.png"
             plant.classList.add("cropImage")
@@ -5309,8 +5809,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 330}`
+            money.setAttribute("data", coins - 330)
         break;
         case "apple":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 360) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 15) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Apple.png"
             plant.classList.add("cropImage")
@@ -5332,8 +5846,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 360}`
+            money.setAttribute("data", coins - 360)
         break;
         case "cherry":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 390) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 16) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Cherry.png"
             plant.classList.add("cropImage")
@@ -5355,8 +5883,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 390}`
+            money.setAttribute("data", coins - 390)
         break;
         case "beetroot":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 420) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 17) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Beetroot.png"
             plant.classList.add("cropImage")
@@ -5378,8 +5920,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 420}`
+            money.setAttribute("data", coins - 420)
         break;
         case "avocado":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 450) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 18) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Avocado.png"
             plant.classList.add("cropImage")
@@ -5401,8 +5957,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 450}`
+            money.setAttribute("data", coins - 450)
         break;
         case "cotton":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 480) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 19) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Cotton.png"
             plant.classList.add("cropImage")
@@ -5424,8 +5994,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 480}`
+            money.setAttribute("data", coins - 480)
         break;
         case "orange":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 510) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 20) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Orange.png"
             plant.classList.add("cropImage")
@@ -5447,8 +6031,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 510}`
+            money.setAttribute("data", coins - 510)
         break;
         case "lime":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 540) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 21) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Lime.png"
             plant.classList.add("cropImage")
@@ -5470,8 +6068,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 540}`
+            money.setAttribute("data", coins - 540)
         break;
         case "pineapple":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 570) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 22) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Pineapple.png"
             plant.classList.add("cropImage")
@@ -5493,8 +6105,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 570}`
+            money.setAttribute("data", coins - 570)
         break;
         case "kiwi":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 600) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 23) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Kiwi.png"
             plant.classList.add("cropImage")
@@ -5516,8 +6142,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 600}`
+            money.setAttribute("data", coins - 600)
         break;
         case "peach":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 630) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 24) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Peach.png"
             plant.classList.add("cropImage")
@@ -5539,8 +6179,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 630}`
+            money.setAttribute("data", coins - 630)
         break;
         case "fig":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 660) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 25) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Fig.png"
             plant.classList.add("cropImage")
@@ -5562,8 +6216,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 660}`
+            money.setAttribute("data", coins - 660)
         break;
         case "pear":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 690) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 26) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Pear.png"
             plant.classList.add("cropImage")
@@ -5585,8 +6253,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 690}`
+            money.setAttribute("data", coins - 690)
         break;
         case "pomegranate":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 720) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 27) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Pomegranate.png"
             plant.classList.add("cropImage")
@@ -5608,8 +6290,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 720}`
+            money.setAttribute("data", coins - 720)
         break;
         case "coffee":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 750) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 28) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Coffee.png"
             plant.classList.add("cropImage")
@@ -5631,8 +6327,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 750}`
+            money.setAttribute("data", coins - 750)
         break;
         case "banana":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 780) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 29) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Banana.png"
             plant.classList.add("cropImage")
@@ -5654,8 +6364,22 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 780}`
+            money.setAttribute("data", coins - 780)
         break;
         case "lemon":
+            var lvl = document.getElementById("lvl")
+            var money = document.getElementById("coins")
+            var coins = money.getAttribute("data")
+            coins = Number.parseInt(coins)
+            if(coins < 810) {
+                console.log("Insufficent funds")
+                return
+            }
+            if(lvl < 30) {
+                console.log("Insufficent Level")
+                return
+            }
             var plant = document.createElement("img")
             plant.src = "Media/Crops/T1/Lemon.png"
             plant.classList.add("cropImage")
@@ -5677,6 +6401,8 @@ function spawnCrop(food) {
                     check = 0
                 }
             }
+            money.innerHTML = `Coins: ${coins - 810}`
+            money.setAttribute("data", coins - 810)
         break;
     }
 }
@@ -5697,6 +6423,41 @@ function gameLoop() {
 }
 
 function lvlprog() {
+        //use 1.5
+    //lvl1 = 100
+    //lvl2 = 150
+    //lvl3 = 225
+    //lvl4 = 338
+    //lvl5 = 507
+    //lvl6 = 761
+    //lvl7 = 1142
+    //lvl8 = 1713
+    //lvl9 = 2570
+    //lvl10 = 3855
+    //after 10 use 1.25
+    //lvl11 = 4819
+    //lvl12 = 6024
+    //lvl13 = 7530
+    //lvl14 = 9413
+    //lvl15 = 11766
+    //after 15 use 1.15
+    //lvl16 = 13531
+    //lvl17 = 15561
+    //lvl18 = 17895
+    //lvl19 = 20579
+    //lvl20 = 23666
+    //after 20 use 1.1
+    //lvl21 = 26033
+    //lvl22 = 28636
+    //lvl23 = 31500
+    //lvl24 = 34650
+    //lvl25 = 38115
+    //after 25 use 1.05
+    //lvl26 = 40021
+    //lvl27 = 42022
+    //lvl28 = 44123
+    //lvl29 = 46329
+    //lvl30 = 48645
     var lvl = window.localStorage.getItem("lvl")
     var xp = window.localStorage.getItem("xp")
     var el = document.getElementById("lvlprog") 
@@ -5704,6 +6465,62 @@ function lvlprog() {
     document.getElementById("lvlDis").setAttribute("lvl", lvl)
     if(lvl == 1) {
         el.max = 150
+    } else if(lvl == 2) {
+        el.max = 225
+    } else if(lvl == 3) {
+        el.max = 338
+    } else if(lvl == 4) {
+        el.max = 507
+    } else if(lvl == 5) {
+        el.max = 761
+    } else if(lvl == 6) {
+        el.max = 1142
+    } else if(lvl == 7) {
+        el.max = 1713
+    } else if(lvl == 8) {
+        el.max = 2570
+    } else if(lvl == 9) {
+        el.max = 3855
+    } else if(lvl == 10) {
+        el.max = 4819
+    } else if(lvl == 11) {
+        el.max = 6024
+    } else if(lvl == 12) {
+        el.max = 7530
+    } else if(lvl == 13) {
+        el.max = 9413
+    } else if(lvl == 14) {
+        el.max = 11766
+    } else if(lvl == 15) {
+        el.max = 13531
+    } else if(lvl == 16) {
+        el.max = 15561
+    } else if(lvl == 17) {
+        el.max = 17895
+    } else if(lvl == 18) {
+        el.max = 20579
+    } else if(lvl == 19) {
+        el.max = 23666
+    } else if(lvl == 20) {
+        el.max = 26033
+    } else if(lvl == 21) {
+        el.max = 28636
+    } else if(lvl == 22) {
+        el.max = 31500
+    } else if(lvl == 23) {
+        el.max = 34650
+    } else if(lvl == 24) {
+        el.max = 38115
+    } else if(lvl == 25) {
+        el.max = 40021
+    } else if(lvl == 26) {
+        el.max = 42022
+    } else if(lvl == 27) {
+        el.max = 44123
+    } else if(lvl == 28) {
+        el.max = 46329
+    } else if(lvl == 29) {
+        el.max = 48645
     }
     el.value = xp
 }
@@ -5712,6 +6529,33 @@ function customerChck() {
     var tomato = document.getElementById("tomatoes").getAttribute("data")
     var wheat = document.getElementById("wheat").getAttribute("data")
     var eggplant = document.getElementById("eggplants").getAttribute("data")
+    var grape = document.getElementById("grapes").getAttribute("data")
+    var carrot = document.getElementById("carrots").getAttribute("data")
+    var pumpkin = document.getElementById("pumpkins").getAttribute("data")
+    var pepper = document.getElementById("peppers").getAttribute("data")
+    var cucumber = document.getElementById("cucumbers").getAttribute("data")
+    var blueberry = document.getElementById("blueberries").getAttribute("data")
+    var cabbage = document.getElementById("cabbages").getAttribute("data")
+    var corn = document.getElementById("corn").getAttribute("data")
+    var potatoes = document.getElementById("potatoes").getAttribute("data")
+    var strawberry = document.getElementById("strawberries").getAttribute("data")
+    var watermelon = document.getElementById("watermelons").getAttribute("data")
+    var apple
+    var cherry
+    var beetroot
+    var avocado
+    var cotton
+    var orange 
+    var lime 
+    var pineapple
+    var kiwi
+    var peach
+    var fig
+    var pear
+    var pomegranate
+    var coffee 
+    var banana
+    var lemon
     for(var i = 1; i < 10; i++) {
         var cust = document.getElementById(`cust${i}`).children[4]
         var d1 = cust.children[0].children[1]
@@ -5735,6 +6579,9 @@ function customerChck() {
         var eggplantChck = 0
         var tomatoC = 0
         var wheatC = 0
+        var eggplantC = 0
+        var grapeC = 0
+
         if(d1Crop == "Tomato") {
             tomatoC = d1Num
             if(tomato >= d1Num) {
@@ -5745,6 +6592,14 @@ function customerChck() {
             }
         } else if(d1Crop == "Wheat") {
             wheatC = d1Num
+            if(wheat >= d1Num) {
+                wheatChck = 1
+                var el = document.getElementById(`cust${i}D1Chck`)
+                el.classList.remove("noCheck")
+                el.classList.add("check")
+            }
+        } else if(d1Crop == "Eggplant") {
+            eggplantC = d1Num
             if(wheat >= d1Num) {
                 wheatChck = 1
                 var el = document.getElementById(`cust${i}D1Chck`)
@@ -5858,29 +6713,44 @@ function saveLoop() {
 function updataCropVals() { 
     var arr = document.getElementsByClassName("cropImage")
     var tomato = JSON.parse(window.sessionStorage.getItem("tomato"))
-    var wheat = {}
-    var eggplant = {}
-    var grape = {}
-    var carrot = {}
+    var wheat = JSON.parse(window.sessionStorage.getItem("wheat"))
+    var eggplant = JSON.parse(window.sessionStorage.getItem("eggplant"))
+    var grape = JSON.parse(window.sessionStorage.getItem("grape"))
+    var carrot = JSON.parse(window.sessionStorage.getItem("carrot"))
+    var pumpkin = JSON.parse(window.sessionStorage.getItem("pumpkin"))
+    var pepper = JSON.parse(window.sessionStorage.getItem("pepper"))
     var obj = {
         "tomato": tomato,
         "wheat": wheat,
         "eggplant":  eggplant,
         "grape": grape,
-        "carrot": carrot
+        "carrot": carrot,
+        "pumpkin": pumpkin,
+        "pepper": pepper,
     }
-    //count down
-    obj.tomato.T1 = obj.tomato.T1 - 1
-    obj.tomato.T2 = obj.tomato.T2 - 1
-    obj.tomato.T3 = obj.tomato.T3 - 1
-    obj.tomato.T4 = obj.tomato.T4 - 1
-    obj.tomato.T5 = obj.tomato.T5 - 1
-    obj.tomato.T6 = obj.tomato.T6 - 1
-    obj.tomato.T7 = obj.tomato.T7 - 1
-    obj.tomato.T8 = obj.tomato.T8 - 1
-    obj.tomato.T9 = obj.tomato.T9 - 1
-    obj.tomato.T10 = obj.tomato.T10 - 1
-
+    //count down//
+    //tomato
+    obj.tomato.T1 -=1
+    obj.tomato.T2 -=1
+    obj.tomato.T3 -=1
+    obj.tomato.T4 -=1
+    obj.tomato.T5 -=1
+    obj.tomato.T6 -=1
+    obj.tomato.T7 -=1
+    obj.tomato.T8 -=1
+    obj.tomato.T9 -=1
+    obj.tomato.T10 -= 1
+    //wheat
+    obj.wheat.T1 -= 1
+    obj.wheat.T2 -= 1
+    obj.wheat.T3 -= 1
+    obj.wheat.T4 -= 1
+    obj.wheat.T5 -= 1
+    obj.wheat.T6 -= 1
+    obj.wheat.T7 -= 1
+    obj.wheat.T8 -= 1
+    obj.wheat.T9 -= 1
+    obj.wheat.T10 -= 1
     //update crops if time is up
     for(var i = 0; i < arr.length; i++) {
         var el = arr[i]
@@ -5962,7 +6832,7 @@ function updataCropVals() {
 }
 
 function upVal(el) {
-        /*steps
+    /*steps
     get all crops
     figure out how long it has been scince last update
     see if we should update that crop
@@ -5979,6 +6849,39 @@ function upVal(el) {
     TomatoT8 = 1s
     TomatoT9 = 1s
     TomatoT10 = 1s
+    WHEAT
+    WheatT1 = 20s
+    WheatT2 = 15s
+    WheatT3 = 12s
+    WheatT4 = 8s
+    WheatT5 = 4s
+    WheatT6 = 3s
+    WheatT7 = 3s
+    WheatT8 = 2s
+    WheatT9 = 2s
+    WheatT10 = 2s
+    EGGPLANT
+    EggplantT1 = 30s
+    EggplantT2 = 23s
+    EggplantT3 = 18s
+    EggplantT4 = 12s
+    EggplantT5 = 6s
+    EggplantT6 = 5s
+    EggplantT7 = 4s
+    EggplantT8 = 3s
+    EggplantT9 = 3s
+    EggplantT10 = 3s
+    GRAPE
+    GrapeT1 = 50s
+    GrapeT2 = 38s
+    GrapeT3 = 30s
+    GrapeT4 = 20s
+    GrapeT5 = 10s
+    GrapeT6 = 8s
+    GrapeT7 = 6s
+    GrapeT8 = 5s
+    GrapeT9 = 5s
+    GrapeT10 = 5s
     MAX CAP for all crops
     TOMATOES
     TomatoT1 = 1
@@ -5991,6 +6894,39 @@ function upVal(el) {
     TomatoT8 = 90
     TomatoT9 = 160
     TomatoT10 = 300
+    WHEAT
+    WheatT1 = 2
+    WheatT2 = 3
+    WheatT3 = 6
+    WheatT4 = 12
+    WheatT5 = 21
+    WheatT6 = 42
+    WheatT7 = 75
+    WheatT8 = 135
+    WheatT9 = 225
+    WheatT10 = 450
+    EGGPLANT
+    EggplantT1 = 1
+    EggplantT2 = 2
+    EggplantT3 = 3
+    EggplantT4 = 6
+    EggplantT5 = 11
+    EggplantT6 = 22
+    EggplantT7 = 40
+    EggplantT8 = 72
+    EggplantT9 = 120
+    EggplantT10 = 240
+    GRAPE
+    GrapeT1 = 2
+    GrapeT2 = 3 
+    GrapeT3 = 6
+    GrapeT4 = 12
+    GrapeT5 = 21
+    GrapeT6 = 42
+    GrapeT7 = 75
+    GrapeT8 = 135
+    GrapeT9 = 240
+    GrapeT10 = 450
     */
     var crop = fig1(el.src)
     var teir = fig2(el.src)
@@ -5998,9 +6934,11 @@ function upVal(el) {
         var plant = document.getElementById(el.id)
         if(plant.data == undefined || plant.data == null) {
             plant.setAttribute("data", 1)
+            plant.parentElement.classList.add("full") 
         }
         if(plant.data != 1) {
             plant.setAttribute("data", 1)
+            plant.parentElement.classList.add("full")
         }
     } else if(crop == "tomato" && teir == 2) {
         var plant = document.getElementById(el.id)
@@ -6012,6 +6950,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 3) {
         var plant = document.getElementById(el.id)
@@ -6023,6 +6963,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 4) {
         var plant = document.getElementById(el.id)
@@ -6034,6 +6976,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 5) {
         var plant = document.getElementById(el.id)
@@ -6045,6 +6989,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 6) {
         var plant = document.getElementById(el.id)
@@ -6056,6 +7002,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 7) {
         var plant = document.getElementById(el.id)
@@ -6067,6 +7015,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 8) {
         var plant = document.getElementById(el.id)
@@ -6078,6 +7028,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 9) {
         var plant = document.getElementById(el.id)
@@ -6089,6 +7041,8 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     } else if(crop == "tomato" && teir == 10) {
         var plant = document.getElementById(el.id)
@@ -6100,6 +7054,21 @@ function upVal(el) {
             num = Number.parseInt(num)
             num += 1
             plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
+        }
+    } else if(crop == "wheat" && teir == 1) {
+        var plant = document.getElementById(el.id)
+        if(plant.getAttribute("data") == undefined) {
+            plant.setAttribute("data", 1)
+        }
+        if(plant.getAttribute("data") != 300) {
+            var num = plant.getAttribute("data")
+            num = Number.parseInt(num)
+            num += 1
+            plant.setAttribute("data", num)
+        } else {
+            plant.parentElement.classList.add("full") 
         }
     }
 }
@@ -6123,6 +7092,14 @@ function init() {
     if(logs == null || logs == undefined) {
         window.localStorage.setItem("logs", JSON.stringify([]))
     }
+    var xp = JSON.parse(window.localStorage.getItem("xp"))
+    if(xp == null || xp == undefined) {
+        window.localStorage.setItem("xp", JSON.stringify(0))
+    }
+    var lvl = JSON.parse(window.localStorage.getItem("lvl"))
+    if(lvl == null || lvl == undefined) {
+        window.localStorage.setItem("lvl", JSON.stringify(1))
+    }
 }
 
 function fig1(src) {
@@ -6138,7 +7115,7 @@ function fig1(src) {
     }
     return crop
 }
-
+ 
 function fig2(src) {
     var teir 
     try {
@@ -6171,7 +7148,6 @@ function fig2(src) {
 }
 
 function fig3(crop) {
-    console.log(crop)
     if(crop.includes("tomato")) {
         return "tomatoes"
     } else if(crop.includes("wheat")) {
@@ -6369,6 +7345,16 @@ function merge(plant, n) {
             cropId()
             n.appendChild(img)
         break;
+        case "eggplantT1":
+            var img = document.createElement("img")
+            img.src = "Media/Crops/T2/Eggplant.png"
+            img.classList.add("cropImage")
+            img.addEventListener("drag", (e) => drag(e))
+            img.addEventListener("mouseenter", (e) => collect(e)) 
+            img.draggable = "true"
+            cropId()
+            n.appendChild(img)
+        break;
     }
 }
 
@@ -6515,62 +7501,14 @@ function mergechck(p1, p2) {
     var plant1
     var plant2
     //find teir
-    if(p1.src.includes("T1")) {
-        teir = 1
-    } else if(p1.src.includes("T2")) {
-        teir = 2
-    } else if(p1.src.includes("T3")) {
-        teir = 3
-    } else if(p1.src.includes("T4")) {
-        teir = 4
-    } else if(p1.src.includes("T5")) {
-        teir = 5
-    } else if(p1.src.includes("T6")) {
-        teir = 6
-    } else if(p1.src.includes("T7")) {
-        teir = 7
-    } else if(p1.src.includes("T8")) {
-        teir = 8
-    } else if(p1.src.includes("T9")) {
-        teir = 9
-    } else if(p1.src.includes("T10")) {
-        teir = 10
-    }
+    teir = fig2(p1.src)
     //find crop type
-    if(p1.src.includes("Tomato")) {
-        crop = "tomato"
-    } else if(p1.src.includes("Wheat")) {
-        crop = "wheat"
-    }
+    crop = fig1(p1.src)
     plant1 = crop + "T" + teir
     //find teir of plant 2
-    if(p2.src.includes("T1")) {
-        teir = 1
-    } else if(p2.src.includes("T2")) {
-        teir = 2
-    } else if(p2.src.includes("T3")) {
-        teir = 3
-    } else if(p2.src.includes("T4")) {
-        teir = 4
-    } else if(p2.src.includes("T5")) {
-        teir = 5
-    } else if(p2.src.includes("T6")) {
-        teir = 6
-    } else if(p2.src.includes("T7")) {
-        teir = 7
-    } else if(p2.src.includes("T8")) {
-        teir = 8
-    } else if(p2.src.includes("T9")) {
-        teir = 9
-    } else if(p2.src.includes("T10")) {
-        teir = 10
-    }
+    teir = fig2(p2.src)
     //find crop type of plant 2
-    if(p2.src.includes("tomato")) {
-        crop = "tomato"
-    } else if(p2.src.includes("Wheat")) {
-        crop = "wheat"
-    }
+    crop = fig1(p2.src)
     plant2 = crop + "T" + teir
     //check if they are the same type of plant
     var arr = [0, ""]
@@ -6601,6 +7539,9 @@ function collect(e) {
         cropCount = Number.parseInt(cropCount)
         tomato.setAttribute("data",  cropCount + num)
         plant.setAttribute("data", 0)
+        if(plant.parentElement.classList.contains("full")) {
+            plant.parentElement.classList.remove("full")
+        }
         tomato.innerHTML = `Tomatos: ${cropCount + num}`
     } else if(crop == "wheat") {
         var wheat = document.getElementById("wheat")
@@ -6833,6 +7774,222 @@ function lvlchck() {
                 window.localStorage.setItem("lvl", lvl)
                 window.localStorage.setItem("xp", xp)
             }
+        break
+        case "3":
+            if(xp >= 338) {
+                lvl = 4
+                xp = xp - 338
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "4":
+            if(xp >= 507) {
+                lvl = 5
+                xp = xp - 507
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "5":
+            if(xp >= 761) {
+                lvl = 6
+                xp = xp - 761
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "6":
+            if(xp >= 1142) {
+                lvl = 7
+                xp = xp - 1142
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "7":
+            if(xp >= 1713) {
+                lvl = 8
+                xp = xp - 1713
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "8":
+            if(xp >= 2570) {
+                lvl = 9
+                xp = xp - 2570
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "9":
+            if(xp >= 3855) {
+                lvl = 10
+                xp = xp - 3855
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "10":
+            if(xp >= 4819) {
+                lvl = 11
+                xp = xp - 4819
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "11":
+            if(xp >= 6024) {
+                lvl = 12
+                xp = xp - 6024
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "12":
+            if(xp >= 7530) {
+                lvl = 13
+                xp = xp - 7530
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "13":
+            if(xp >= 9413) {
+                lvl = 14
+                xp = xp - 9413
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "14":
+            if(xp >= 11766) {
+                lvl = 15
+                xp = xp - 11766
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "15":
+            if(xp >= 13531) {
+                lvl = 16
+                xp = xp - 13531
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "16":
+            if(xp >= 15561) {
+                lvl = 17
+                xp = xp - 15561
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "17":
+            if(xp >= 17895) {
+                lvl = 18
+                xp = xp - 17895
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "18":
+            if(xp >= 20579) {
+                lvl = 19
+                xp = xp - 20579
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "19":
+            if(xp >= 23666) {
+                lvl = 20
+                xp = xp - 23666
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "20":
+            if(xp >= 26033) {
+                lvl = 21
+                xp = xp - 26033
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "21":
+            if(xp >= 28636) {
+                lvl = 22
+                xp = xp - 28636
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "22":
+            if(xp >= 31500) {
+                lvl = 23
+                xp = xp - 31500
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "23":
+            if(xp >= 34650) {
+                lvl = 24
+                xp = xp - 34650
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "24":
+            if(xp >= 38115) {
+                lvl = 25
+                xp = xp - 38115
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "25":
+            if(xp >= 40021) {
+                lvl = 26
+                xp = xp - 40021
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "26":
+            if(xp >= 42022) {
+                lvl = 27
+                xp = xp - 42022
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "27":
+            if(xp >= 44123) {
+                lvl = 28
+                xp = xp - 44123
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "28":
+            if(xp >= 46329) {
+                lvl = 29
+                xp = xp - 46329
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
+        break;
+        case "29":
+            if(xp >= 48645) {
+                lvl = 30
+                xp = xp - 48645
+                window.localStorage.setItem("lvl", lvl)
+                window.localStorage.setItem("xp", xp)
+            }
         break;
     }
 }
@@ -6945,6 +8102,146 @@ function getCustWorth(req1C, req1N, req2C, req2N, req3C, req3N, req4C, req4N, re
                 var worth = req1N * perC
                 return worth
             break
+            case "Eggplant":
+                var perC = 18/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Grape":
+                var perC = 30/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Carrot":
+                var perC = 42/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Pumpkin":
+                var perC = 60/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Pepper":
+                var perC = 90/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Cucumber":
+                var perC = 120/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Blueberry":
+                var perC = 150/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Cabbage":
+                var perC = 180/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Corn":
+                var perC = 210/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Potato":
+                var perC = 240/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Strawberry":
+                var perC = 270/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Watermelon":
+                var perC = 330/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Apple":
+                var perC = 360/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Cherry":
+                var perC = 390/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Beetroot":
+                var perC = 420/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Avocado":
+                var perC = 450/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Cotton":
+                var perC = 480/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Orange":
+                var perC = 510/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Lime":
+                var perC = 540/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Pineapple":
+                var perC = 570/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Kiwi":
+                var perC = 600/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Peach":
+                var perC = 630/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Fig":
+                var perC = 660/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Pear":
+                var perC = 690/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Pomegranate":
+                var perC = 720/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Coffee":
+                var perC = 750/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Banana":
+                var perC = 780/12
+                var worth = req1N * perC
+                return worth
+            break;
+            case "Lemon":
+                var perC = 810/12
+                var worth = req1N * perC
+                return worth
+            break;
         }
     }
     if(req2CC == 0) {
@@ -6958,25 +8255,455 @@ function getCustWorth(req1C, req1N, req2C, req2N, req3C, req3N, req4C, req4N, re
                 var perC = 12/12
                 var worth = req2N * perC
                 return worth
+            break
+            case "Eggplant":
+                var perC = 18/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Grape":
+                var perC = 30/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Carrot":
+                var perC = 42/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Pumpkin":
+                var perC = 60/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Pepper":
+                var perC = 90/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Cucumber":
+                var perC = 120/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Blueberry":
+                var perC = 150/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Cabbage":
+                var perC = 180/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Corn":
+                var perC = 210/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Potato":
+                var perC = 240/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Strawberry":
+                var perC = 270/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Watermelon":
+                var perC = 330/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Apple":
+                var perC = 360/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Cherry":
+                var perC = 390/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Beetroot":
+                var perC = 420/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Avocado":
+                var perC = 450/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Cotton":
+                var perC = 480/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Orange":
+                var perC = 510/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Lime":
+                var perC = 540/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Pineapple":
+                var perC = 570/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Kiwi":
+                var perC = 600/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Peach":
+                var perC = 630/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Fig":
+                var perC = 660/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Pear":
+                var perC = 690/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Pomegranate":
+                var perC = 720/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Coffee":
+                var perC = 750/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Banana":
+                var perC = 780/12
+                var worth = req2N * perC
+                return worth
+            break;
+            case "Lemon":
+                var perC = 810/12
+                var worth = req2N * perC
+                return worth
             break;
         }
     }
     if(req3CC == 0) {
         switch (req3C) {
             case "Tomato":
-                var perC = 0.5
+                var perC = 6/12
                 var worth = req3N * perC
                 return worth
             break
+            case "Wheat":
+                var perC = 12/12
+                var worth = req3N * perC
+                return worth
+            break
+            case "Eggplant":
+                var perC = 18/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Grape":
+                var perC = 30/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Carrot":
+                var perC = 42/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Pumpkin":
+                var perC = 60/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Pepper":
+                var perC = 90/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Cucumber":
+                var perC = 120/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Blueberry":
+                var perC = 150/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Cabbage":
+                var perC = 180/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Corn":
+                var perC = 210/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Potato":
+                var perC = 240/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Strawberry":
+                var perC = 270/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Watermelon":
+                var perC = 330/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Apple":
+                var perC = 360/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Cherry":
+                var perC = 390/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Beetroot":
+                var perC = 420/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Avocado":
+                var perC = 450/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Cotton":
+                var perC = 480/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Orange":
+                var perC = 510/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Lime":
+                var perC = 540/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Pineapple":
+                var perC = 570/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Kiwi":
+                var perC = 600/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Peach":
+                var perC = 630/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Fig":
+                var perC = 660/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Pear":
+                var perC = 690/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Pomegranate":
+                var perC = 720/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Coffee":
+                var perC = 750/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Banana":
+                var perC = 780/12
+                var worth = req3N * perC
+                return worth
+            break;
+            case "Lemon":
+                var perC = 810/12
+                var worth = req3N * perC
+                return worth
+            break;
         }
     }
     if(req4CC == 0) {
         switch (req4C) {
             case "Tomato":
-                var perC = 0.5
+                var perC = 6/12
                 var worth = req4N * perC
                 return worth
             break
+            case "Wheat":
+                var perC = 12/12
+                var worth = req4N * perC
+                return worth
+            break
+            case "Eggplant":
+                var perC = 18/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Grape":
+                var perC = 30/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Carrot":
+                var perC = 42/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Pumpkin":
+                var perC = 60/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Pepper":
+                var perC = 90/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Cucumber":
+                var perC = 120/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Blueberry":
+                var perC = 150/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Cabbage":
+                var perC = 180/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Corn":
+                var perC = 210/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Potato":
+                var perC = 240/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Strawberry":
+                var perC = 270/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Watermelon":
+                var perC = 330/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Apple":
+                var perC = 360/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Cherry":
+                var perC = 390/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Beetroot":
+                var perC = 420/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Avocado":
+                var perC = 450/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Cotton":
+                var perC = 480/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Orange":
+                var perC = 510/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Lime":
+                var perC = 540/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Pineapple":
+                var perC = 570/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Kiwi":
+                var perC = 600/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Peach":
+                var perC = 630/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Fig":
+                var perC = 660/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Pear":
+                var perC = 690/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Pomegranate":
+                var perC = 720/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Coffee":
+                var perC = 750/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Banana":
+                var perC = 780/12
+                var worth = req4N * perC
+                return worth
+            break;
+            case "Lemon":
+                var perC = 810/12
+                var worth = req4N * perC
+                return worth
+            break;
         }
     }
 }
@@ -6986,12 +8713,10 @@ function getCustXp(worth) {
 }
 
 function visitorLog(name, xp, gender, worth) {
-    console.log(name, xp, gender, worth)
     if(typeof(worth) == "string") {
         worth = Number.parseInt(worth)
     }
     var date = new Date()
-    var weekday = date.getDay()
     var day = date.getDate()
     var month = date.getMonth()
     month++
@@ -7004,7 +8729,7 @@ function visitorLog(name, xp, gender, worth) {
     if(minute.length == 1) {
         minute = "0" + minute
     }
-    var time = `${weekday} ${day}/${month}/${year} ${hrs}:${minute}`
+    var time = `${day}/${month}/${year} ${hrs}:${minute}`
     for(var i = 0; i < logs.length; i++) {
         if(logs[i].name == name && logs[i].gender == gender) {
             old = logs[i]
@@ -7029,5 +8754,24 @@ function visitorLog(name, xp, gender, worth) {
         logs.push(vis)
     }
     window.localStorage.setItem("logs", JSON.stringify(logs))
-    console.log(weekday, day, month, year, hrs, minute)
 }  
+
+function scrollProducts(e) {
+    e = window.event || e;
+    var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    var scrollSpeed = 60; 
+    var target = e.target
+    while(target.id != "products") {
+        target = target.parentElement
+    }
+    target.children[0].scrollLeft -= (delta * scrollSpeed);
+    e.preventDefault();
+}
+
+function scrollCon(e) {
+    e = window.event || e;
+    var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    var scrollSpeed = 60; 
+    document.documentElement.scrollLeft -= (delta * scrollSpeed);
+    e.preventDefault();
+}

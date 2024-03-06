@@ -19,7 +19,7 @@
             <section class="gold">
                 <label for="lvlprog" id="lvlDis" lvl="">Level: </label>
                 <progress id="lvlprog" max="" value=""></progress>
-                <h3 id="coins" data="0">Coins: 0</h3>
+                <h3 id="coins" data="36">Coins: 36</h3>
                 <h3 id="tomatoes" data="0">Tomatoes: 0</h3>
                 <h3 id="wheat" data="0">Wheat: 0</h3>
                 <h3 id="eggplants" data="0">Eggplants: 0</h3>
@@ -319,10 +319,10 @@
                 </div>
             </div>
         </section>
-        <main id="con" class="grid templates">
+        <main id="con" class="grid templates" onmousewheel="scrollCon(event)">
 
         </main>
-        <section class="green" id="products">
+        <section class="green" id="products" onmousewheel="scrollProducts(event)">
             <section class="large flex scroll">
                 <div class="border food">
                     <img src="Media/Icons/Tomato.jpg" alt="Picture of tomato icon" class="foodPic">
@@ -527,6 +527,70 @@
             <img src="Media/Crops/T8/Tomato.png" id="Tomato8Img">
             <img src="Media/Crops/T9/Tomato.png" id="Tomato9Img">
             <img src="Media/Crops/T10/Tomato.png" id="Tomato10Img">
+            <!--wheat crop-->
+            <img src="Media/Crops/T1/Wheat.png" id="Wheat1Img">
+            <img src="Media/Crops/T2/Wheat.png" id="Wheat2Img">
+            <img src="Media/Crops/T3/Wheat.png" id="Wheat3Img">
+            <img src="Media/Crops/T4/Wheat.png" id="Wheat4Img">
+            <img src="Media/Crops/T5/Wheat.png" id="Wheat5Img">
+            <img src="Media/Crops/T6/Wheat.png" id="Wheat6Img">
+            <img src="Media/Crops/T7/Wheat.png" id="Wheat7Img">
+            <img src="Media/Crops/T8/Wheat.png" id="Wheat8Img">
+            <img src="Media/Crops/T9/Wheat.png" id="Wheat9Img">
+            <img src="Media/Crops/T10/Wheat.png" id="Wheat10Img">
+            <!--eggplant crop-->
+            <img src="Media/Crops/T1/Eggplant.png" id="Eggplant1Img">
+            <img src="Media/Crops/T2/Eggplant.png" id="Eggplant2Img">
+            <img src="Media/Crops/T3/Eggplant.png" id="Eggplant3Img">
+            <img src="Media/Crops/T4/Eggplant.png" id="Eggplant4Img">
+            <img src="Media/Crops/T5/Eggplant.png" id="Eggplant5Img">
+            <img src="Media/Crops/T6/Eggplant.png" id="Eggplant6Img">
+            <img src="Media/Crops/T7/Eggplant.png" id="Eggplant7Img">
+            <img src="Media/Crops/T8/Eggplant.png" id="Eggplant8Img">
+            <img src="Media/Crops/T9/Eggplant.png" id="Eggplant9Img">
+            <img src="Media/Crops/T10/Eggplant.png" id="Eggplant10Img">
+            <!--Grape crop-->
+            <img src="Media/Crops/T1/Grape.png" id="Grape1Img">
+            <img src="Media/Crops/T2/Grape.png" id="Grape2Img">
+            <img src="Media/Crops/T3/Grape.png" id="Grape3Img">
+            <img src="Media/Crops/T4/Grape.png" id="Grape4Img">
+            <img src="Media/Crops/T5/Grape.png" id="Grape5Img">
+            <img src="Media/Crops/T6/Grape.png" id="Grape6Img">
+            <img src="Media/Crops/T7/Grape.png" id="Grape7Img">
+            <img src="Media/Crops/T8/Grape.png" id="Grape8Img">
+            <img src="Media/Crops/T9/Grape.png" id="Grape9Img">
+            <img src="Media/Crops/T10/Grape.png" id="Grape10Img">
+            <!--Carrot crop-->
+            <img src="Media/Crops/T1/Carrot.png" id="Carrot1Img">
+            <img src="Media/Crops/T2/Carrot.png" id="Carrot2Img">
+            <img src="Media/Crops/T3/Carrot.png" id="Carrot3Img">
+            <img src="Media/Crops/T4/Carrot.png" id="Carrot4Img">
+            <img src="Media/Crops/T5/Carrot.png" id="Carrot5Img">
+            <img src="Media/Crops/T6/Carrot.png" id="Carrot6Img">
+            <img src="Media/Crops/T7/Carrot.png" id="Carrot7Img">
+            <img src="Media/Crops/T8/Carrot.png" id="Carrot8Img">
+            <img src="Media/Crops/T9/Carrot.png" id="Carrot9Img">
+            <img src="Media/Crops/T10/Carrot.png" id="Carrot10Img">
+            <!--Pumpkin Crop-->
+            <img src="Media/Crops/T1/Pumpkin.png" id="Pumpkin1Img">
+            <img src="Media/Crops/T2/Pumpkin.png" id="Pumpkin2Img">
+            <img src="Media/Crops/T3/Pumpkin.png" id="Pumpkin3Img">
+            <img src="Media/Crops/T4/Pumpkin.png" id="Pumpkin4Img">
+            <img src="Media/Crops/T5/Pumpkin.png" id="Pumpkin5Img">
+            <img src="Media/Crops/T6/Pumpkin.png" id="Pumpkin6Img">
+            <img src="Media/Crops/T7/Pumpkin.png" id="Pumpkin7Img">
+            <img src="Media/Crops/T8/Pumpkin.png" id="Pumpkin8Img">
+            <img src="Media/Crops/T9/Pumpkin.png" id="Pumpkin9Img">
+            <img src="Media/Crops/T10/Pumpkin.png" id="Pumpkin10Img">
+            <!--Pepper Crop-->
+            <img src="Media/Crops/T1/Pepper.png" id="Pepper1Img">
+            <img src="Media/Crops/T2/Pepper.png" id="Pepper2Img">
+            <img src="Media/Crops/T3/Pepper.png" id="Pepper3Img">
+            <img src="Media/Crops/T4/Pepper.png" id="Pepper4Img">
+            <img src="Media/Crops/T5/Pepper.png" id="Pepper5Img">
+            <img src="Media/Crops/T6/Pepper.png" id="Pepper6Img">
+            <img src="Media/Crops/T7/Pepper.png" id="Pepper7Img">
+
         </div>
     </body>
 </html>

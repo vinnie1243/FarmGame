@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+    user-select: none ;
 }
 
 .nav {
@@ -30,6 +31,10 @@ a {
 
 .flex {
     display: flex;
+}
+
+.full {
+    background-color: #b56509 !important;
 }
 
 .test {
